@@ -4,17 +4,17 @@ import uuid
 class Customer(models.Model):
   """Customer class"""
   id = models.UUIDField(primary_key=True, null=False, default=uuid.uuid4)
-  name = models.CharField(max_length=100)
-  email = models.EmailField(max_length=100, unique=True, null=False)
-  phone = models.CharField(max_length=100)
-  address = models.CharField(null=True, blank=True, max_length=100)
+  name = models.CharField(blank=False, null=False, max_length=200)
+  email = models.EmailField(unique=True, null=False)
+  phone = models.CharField(null=True, blank=True, max_length=20)
+  address = models.CharField(null=True, blank=True, max_length=200)
   def __str__(self):
     return self.name
 
 class Product(models.Model):
   """Poduct class that defines the product schema"""
   id = models.UUIDField(null=False, primary_key=True, default=uuid.uuid4)
-  name = models.CharField(max_length=100)
+  name = models.CharField(blank=False, null=False, max_length=200)
   price = models.DecimalField(max_digits=10, decimal_places=2)
   stock = models.IntegerField(blank=True, null=True, default=0)
   def __str__(self):
