@@ -5,8 +5,8 @@ class Customer(models.Model):
   """Customer class"""
   id = models.UUIDField(primary_key=True, null=False, default=uuid.uuid4)
   name = models.CharField(max_length=100)
-  email = models.EmailField(unique=True, null=False)
-  phone = models.CharField(null=True, blank=True, max_length=20)
+  email = models.EmailField(max_length=100, unique=True, null=False)
+  phone = models.CharField(max_length=100)
   address = models.CharField(null=True, blank=True, max_length=100)
   def __str__(self):
     return self.name
