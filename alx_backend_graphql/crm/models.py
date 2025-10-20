@@ -14,7 +14,7 @@ class Customer(models.Model):
 class Product(models.Model):
   """Poduct class that defines the product schema"""
   id = models.UUIDField(null=False, primary_key=True, default=uuid.uuid4)
-  name = models.CharField(blank=False, null=False, max_length=100)
+  name = models.CharField(max_length=100)
   price = models.DecimalField(max_digits=10, decimal_places=2)
   stock = models.IntegerField(blank=True, null=True, default=0)
   def __str__(self):
