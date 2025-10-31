@@ -3,6 +3,11 @@ import graphene
 from graphene_django.types import DjangoObjectType
 from crm.models import Customer, Order, Product
 from django.core.exceptions import ValidationError
+from graphene.types import decimal as graphene_decimal
+import graphql_jwt
+from django.contrib.auth import get_user_model
+#from .types import UserType
+User = get_user_model()
 
 class CustomerType(DjangoObjectType):
   class Meta:
@@ -20,16 +25,19 @@ class ProductType(DjangoObjectType):
     fields = "__all__"
 
 class CreateCustomer(graphene.Mutation):
+  user = graphene.Field(CustomerType)
   class Arguments:
     name = graphene.String(required=True)
     email = graphene.String(required=True)
     phone = graphene.String(required=False)
+    password = graphene.String(required=True)
+    #username = graphene.String(required=True)
 
   customer = graphene.Field(CustomerType)
   success = graphene.Boolean()
   message = graphene.String()
 
-  def mutate(self, info, name, email, phone=None):
+  def mutate(self, info, name, password, email, phone=None):
     if Customer.objects.filter(email=email).exists():
       raise ValidationError("A customer with the same email exits already")
     
@@ -37,8 +45,13 @@ class CreateCustomer(graphene.Mutation):
       correct_number_pattern= r'^(\+\d{10,15}|\d{3}-\d{3}-\d{4})$'
       if not re.match(correct_number_pattern, phone):
         raise ValidationError("Invalid phone format. Use +1234567890 or 123-456-7890")
-      
+    
+    if not email:
+      raise ValidationError("Email is required")
+    
+    email = Customer.objects.normalize_email(email)
     customer = Customer(name=name, email=email, phone=phone)
+    customer.set_password(password)
     customer.save()
 
     return CreateCustomer(
@@ -47,10 +60,17 @@ class CreateCustomer(graphene.Mutation):
       message="Customer created successfully!"
     )
 
+class ObtainJSONWebToken(graphql_jwt.ObtainJSONWebToken):
+  user = graphene.Field(CustomerType)
+
+  @classmethod
+  def resolve(cls, root, info, **kwargs):
+    return cls(user=info.context.user)
+
 class CreateProduct(graphene.Mutation):
   class Arguments:
     name = graphene.String(required=True)
-    price= graphene.Float(required=True)
+    price= graphene_decimal.Decimal(required=True)
     stock= graphene.Int(required=False, default_value=0)
 
   product = graphene.Field(ProductType)
@@ -84,6 +104,7 @@ class CreateOrder(graphene.Mutation):
   order = graphene.Field(OrderType)
   success = graphene.Boolean()
   message = graphene.String()
+  total_order = graphene.Decimal()
 
   def mutate(self, info, customer_id, product_id):
     try:
@@ -97,12 +118,15 @@ class CreateOrder(graphene.Mutation):
     if missing:
       raise ValidationError(f"Products not found: {', '.join(missing)}")
     
+    total_sum = sum(product.price for product in products)
+    
     order = Order.objects.create(customer_id=customer)
     order.product_ids.set(products)
     order.save()
     return CreateOrder(
       order=order,
       success=True,
+      total_order=total_sum,
       message="Order(s) created successfully"
     )
 
@@ -139,5 +163,8 @@ class Mutation(graphene.ObjectType):
   #bulk_create_customers = BulkCreateCustomers.Field()
   create_product = CreateProduct.Field()
   create_order = CreateOrder.Field()
+  token_auth = ObtainJSONWebToken.Field()
+  verify_token = graphql_jwt.Verify.Field()
+  refresh_token = graphql_jwt.Refresh.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

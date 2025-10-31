@@ -1,0 +1,5 @@
+[2025-10-31 08:11:01] Deleted 8 objects imported automatically (use -v 2 for details).
+
+Ctrl click to launch VS Code Native REPL
+>>> >>> >>> >>> >>> >>> ... ... >>> >>> 0
+>>>  inactive customers

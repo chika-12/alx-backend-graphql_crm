@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "crm",
     "rest_framework",
-    "graphene_django"
+    "graphene_django",
+    "django_filters"
 ]
 
 MIDDLEWARE = [
@@ -127,6 +128,16 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+#Authentication 
 GRAPHENE = {
-    "SCHEMA": "alx_backend_graphql.schema.schema"
+    "SCHEMA": "alx_backend_graphql.schema.schema",
+    "MIDDLEWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
 }
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+AUTH_USER_MODEL = "crm.Customer"
