@@ -1,0 +1,1 @@
+0 2 * * 1/Desktop/Package/alx-backend-graphql_crm/crm/cron_job/clean_inactive_customers.sh >> /Desktop/Package/alx-backend-graphql_crm/crm/cron_job/customer_cleanup_log.txt
