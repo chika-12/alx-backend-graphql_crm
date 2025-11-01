@@ -40,9 +40,8 @@ INSTALLED_APPS = [
     "crm",
     "rest_framework",
     "graphene_django",
-    "django_filters",
-    "django_crontab "
-
+    "django_filters"
+    " django_crontab "
 ]
 
 MIDDLEWARE = [
@@ -142,7 +141,8 @@ AUTHENTICATION_BACKENDS = [
     "graphql_jwt.backends.JSONWebTokenBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
-AUTH_USER_MODEL = "crm.Customeri"
+AUTH_USER_MODEL = "crm.Customer"
+
 CRONJOBS = [
     ('*/5 * * * *', 'crm.cron.log_crm_heartbeat'),
 ]
