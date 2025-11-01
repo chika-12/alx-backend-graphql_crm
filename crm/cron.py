@@ -1,5 +1,6 @@
 import logging
-import requests
+from gql import gql, Client
+from gql.transport.requests import RequestsHTTPTransport
 from datetime import datetime
 
 logging.basicConfig(
@@ -11,16 +12,25 @@ logging.basicConfig(
 def log_crm_heartbeat():
   url = "http://localhost:8000/graphql/"
   timestamp = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
-
+  
   try:
-    response = requests.get(url=url, )
-
-    if response.status_code == 200:
+    query = gql("""
+      {
+        hello
+      }
+    """)
+    transport = RequestsHTTPTransport(
+      url=url,
+      verify=True,
+      retries=3
+    )
+    client = Client(transport=transport, fetch_schema_from_transport=True)
+    response = client.execute(query)
+    if "hello" in response:
       logging.info(f"{timestamp} CRM is alive")
     else:
-      logging.warning(f"Heartbeat warning at {timestamp}. Status: {response.status_code}")
+      logging.warning(f"{timestamp} CRM is not responding accordinly")
   except Exception as e:
-    logging.error(f" Error: {e}")
-
+    logging.error(f"Error: {e}")
 
 
