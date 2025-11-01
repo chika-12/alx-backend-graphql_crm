@@ -1,7 +1,8 @@
 import re
 import graphene
 from graphene_django.types import DjangoObjectType
-from crm.models import Customer, Order, Product
+from crm.models import Customer, Order
+from crm.models import Product
 from django.core.exceptions import ValidationError
 
 class CustomerType(DjangoObjectType):
